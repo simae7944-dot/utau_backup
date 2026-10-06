@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우타우 캐릭터 위키</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2F6;--card:#fff;--ink:#1B2233;--mute:#5D6980;--line:#D5DCE6;--acc:#167C79;--acc-ink:#fff;--chip:#E1E8F0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121826;--card:#1B2233;--ink:#E8EDF5;--mute:#9AA6BC;--line:#2C3650;--acc:#4CC9C4;--acc-ink:#0B1F1E;--chip:#26314A}}
+:root[data-theme="dark"]{--bg:#121826;--card:#1B2233;--ink:#E8EDF5;--mute:#9AA6BC;--line:#2C3650;--acc:#4CC9C4;--acc-ink:#0B1F1E;--chip:#26314A}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 "Noto Sans KR",system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:26px;line-height:1.25;margin:0 0 4px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 14px;font-size:14px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+textarea{min-height:90px}
+#q{margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.lbl{font-size:13px;color:var(--mute);width:56px;flex:none}
+.sp{display:contents}
+button{font:inherit;color:inherit}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn{border:0;background:var(--acc);color:var(--acc-ink);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn.ghost{background:var(--chip);color:var(--ink)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;gap:8px;flex-wrap:wrap}
+.count{font-size:13px;color:var(--mute)}
+#adm{display:none;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.card:hover{border-color:var(--acc)}
+.top{display:flex;gap:12px;align-items:center}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:20px;color:#fff;flex:none;object-fit:cover}
+.nm{font-weight:700;font-size:16px;line-height:1.3}
+.cat{font-size:12px;color:var(--mute)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tg{font-size:12px;background:var(--chip);border-radius:6px;padding:1px 8px}
+.empty{padding:32px 0;text-align:center;color:var(--mute);grid-column:1/-1}
+#more{text-align:center;margin-top:14px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(460px,calc(100% - 32px));padding:20px;max-height:90vh}
+dialog::backdrop{background:rgba(10,15,25,.55)}
+dl{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin:14px 0;font-size:14px}
+dt{color:var(--mute)}dd{margin:0}
+.big{width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:12px;background:var(--chip)}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:10px;font-size:14px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<main>
+  <h1>우타우 캐릭터 위키</h1>
+  <p class="sub">카테고리와 태그로 캐릭터를 모아보는 위키. 처음 들어 있는 8명은 예시라서 지워도 돼요.</p>
+  <input type="search" id="q" placeholder="이름·제작자·태그 검색" aria-label="검색">
+  <div class="row"><span class="lbl">카테고리</span><span id="cats" class="sp"></span></div>
+  <div class="row"><span class="lbl">태그</span><span id="tags" class="sp"></span></div>
+  <div class="bar"><span class="count" id="count"></span>
+    <span id="adm"><button class="btn" id="add">캐릭터 추가</button><button class="btn ghost" id="bulk">일괄 추가</button></span></div>
+  <div class="grid" id="grid"></div>
+  <div id="more"></div>
+  <dialog id="dlg"></dialog>
+  <dialog id="fm">
+    <b id="ft">캐릭터 추가</b>
+    <label for="f_n">이름</label><input id="f_n">
+    <label for="f_c">카테고리</label><input id="f_c" list="cl"><datalist id="cl"></datalist>
+    <label for="f_t">태그 (쉼표로 구분)</label><input id="f_t">
+    <label for="f_by">제작자</label><input id="f_by">
+    <label for="f_y">공개 연도</label><input id="f_y" inputmode="numeric">
+    <label for="f_d">소개</label><textarea id="f_d"></textarea>
+    <label for="f_i">이미지</label><input id="f_i" type="file" accept="image/*">
+    <div class="acts"><button class="btn ghost" id="f_x">취소</button><button class="btn" id="f_s">저장</button></div>
+  </dialog>
+  <dialog id="bk">
+    <b>일괄 추가</b>
+    <p class="cat">한 줄에 한 명, 쉼표로 구분해요.<br>이름,카테고리,태그1/태그2,제작자,연도,소개</p>
+    <textarea id="b_t" style="min-height:180px"></textarea>
+    <div class="acts"><button class="btn ghost" id="b_x">취소</button><button class="btn" id="b_s">추가</button></div>
+  </dialog>
+  <div id="toast" role="status"></div>
+</main>
+<script type="application/json" id="data">[{"id":"a1","n":"하루네","c":"보이스뱅크","t":["여성","밝음","일본어"],"y":"2019","by":"제작자 A","d":"맑고 높은 음역이 특징인 기본 보이스뱅크."},{"id":"a2","n":"시오리","c":"보이스뱅크","t":["여성","차분","한국어"],"y":"2021","by":"제작자 B","d":"낮고 부드러운 톤으로 발라드에 잘 어울려요."},{"id":"a3","n":"카이로","c":"보이스뱅크","t":["남성","차분","일본어"],"y":"2020","by":"제작자 C","d":"안정적인 중저음의 남성 보이스뱅크."},{"id":"a4","n":"미나토","c":"오리지널 캐릭터","t":["남성","밝음","한국어"],"y":"2022","by":"제작자 D","d":"팬이 만든 오리지널 캐릭터."},{"id":"a5","n":"유즈","c":"오리지널 캐릭터","t":["중성","밝음","일본어"],"y":"2023","by":"제작자 E","d":"성별을 정하지 않은 마스코트 캐릭터."},{"id":"a6","n":"소라","c":"팬 제작","t":["여성","차분","일본어"],"y":"2018","by":"제작자 F","d":"커뮤니티에서 오래 사랑받은 캐릭터."},{"id":"a7","n":"노아","c":"팬 제작","t":["중성","차분","한국어"],"y":"2024","by":"제작자 G","d":"최근 공개된 팬 제작 캐릭터."},{"id":"a8","n":"리쿠","c":"오리지널 캐릭터","t":["남성","차분","일본어"],"y":"2017","by":"제작자 H","d":"초기 커뮤니티에서 만들어진 캐릭터."}]</script>
+<script>
+const $=id=>document.getElementById(id);
+let DATA=JSON.parse($('data').textContent);
+const st={cat:'전체',tags:new Set(),q:'',shown:60};
+let art=null,editId=null,newImg=null;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hue=s=>[...s].reduce((a,c)=>a+c.charCodeAt(0),0)*37%360;
+const okImg=s=>typeof s==='string'&&s.startsWith('data:image/jpeg;base64,');
+const av=x=>okImg(x.img)?`<img class="av" alt="" src="${x.img}">`:`<span class="av" style="background:hsl(${hue(x.n||'?')} 45% 42%)">${esc((x.n||'?')[0])}</span>`;
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3000)}
+if(window.claude&&claude.use){claude.use('artifact').then(a=>{art=a;if(a)$('adm').style.display='flex';render()}).catch(()=>{})}
+
+function chips(el,list,isOn,fn){el.innerHTML='';list.forEach(v=>{const b=document.createElement('button');b.className='chip';b.textContent=v;b.setAttribute('aria-pressed',isOn(v));b.onclick=()=>{fn(v);st.shown=60;render()};el.appendChild(b)})}
+function render(){
+  const cats=['전체',...new Set(DATA.map(x=>x.c).filter(Boolean))];
+  const freq={};DATA.forEach(x=>(x.t||[]).forEach(t=>freq[t]=(freq[t]||0)+1));
+  const tags=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]).slice(0,30);
+  chips($('cats'),cats,v=>st.cat===v,v=>st.cat=v);
+  chips($('tags'),tags,v=>st.tags.has(v),v=>st.tags.has(v)?st.tags.delete(v):st.tags.add(v));
+  $('cl').innerHTML=cats.slice(1).map(c=>`<option value="${esc(c)}">`).join('');
+  const q=st.q.toLowerCase();
+  const list=DATA.filter(x=>(st.cat==='전체'||x.c===st.cat)&&[...st.tags].every(t=>(x.t||[]).includes(t))&&(!q||(x.n+' '+(x.by||'')+' '+(x.t||[]).join(' ')).toLowerCase().includes(q)));
+  $('count').textContent=`캐릭터 ${list.length}명`;
+  const g=$('grid');g.innerHTML='';
+  if(!list.length){g.innerHTML='<div class="empty">조건에 맞는 캐릭터가 없어요. 태그를 해제하거나 검색어를 바꿔 보세요.</div>'}
+  list.slice(0,st.shown).forEach(x=>{const b=document.createElement('button');b.className='card';
+    b.innerHTML=`<span class="top">${av(x)}<span><span class="nm">${esc(x.n)}</span><br><span class="cat">${esc(x.c)}</span></span></span><span class="tags">${(x.t||[]).map(t=>`<span class="tg">${esc(t)}</span>`).join('')}</span>`;
+    b.onclick=()=>detail(x);g.appendChild(b)});
+  $('more').innerHTML='';
+  if(list.length>st.shown){const b=document.createElement('button');b.className='btn ghost';b.textContent='더 보기';b.onclick=()=>{st.shown+=60;render()};$('more').appendChild(b)}
+}
+function detail(x){
+  const d=$('dlg');
+  d.innerHTML=`<div class="top">${av(x)}<div><div class="nm">${esc(x.n)}</div><div class="cat">${esc(x.c)}</div></div></div>${okImg(x.img)?`<img class="big" alt="${esc(x.n)}" src="${x.img}">`:''}
+  <dl><dt>제작자</dt><dd>${esc(x.by)||'-'}</dd><dt>공개</dt><dd>${esc(x.y)||'-'}</dd><dt>태그</dt><dd>${esc((x.t||[]).join(', '))||'-'}</dd><dt>소개</dt><dd>${esc(x.d)||'-'}</dd></dl>
+  <div class="acts">${art?'<button class="btn ghost" id="d_del">삭제</button><button class="btn ghost" id="d_ed">수정</button>':''}<button class="btn" id="d_x">닫기</button></div>`;
+  $('d_x').onclick=()=>d.close();
+  if(art){$('d_ed').onclick=()=>{d.close();form(x)};
+    $('d_del').onclick=function(){if(!this.dataset.s){this.dataset.s=1;this.textContent='정말 삭제';return}d.close();commit(()=>{DATA=DATA.filter(y=>y.id!==x.id)})}}
+  d.showModal();
+}
+function form(x){
+  editId=x?x.id:null;newImg=null;$('ft').textContent=x?'캐릭터 수정':'캐릭터 추가';
+  $('f_n').value=x?x.n:'';$('f_c').value=x?x.c:'';$('f_t').value=x?(x.t||[]).join(', '):'';$('f_by').value=x?x.by||'':'';$('f_y').value=x?x.y||'':'';$('f_d').value=x?x.d||'':'';$('f_i').value='';
+  $('fm').showModal();
+}
+$('f_i').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,240/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const k=c.getContext('2d');k.fillStyle='#fff';k.fillRect(0,0,c.width,c.height);k.drawImage(im,0,0,c.width,c.height);newImg=c.toDataURL('image/jpeg',.72)};im.src=r.result};r.readAsDataURL(f)};
+$('f_x').onclick=()=>$('fm').close();
+$('f_s').onclick=()=>{
+  const n=$('f_n').value.trim();if(!n){toast('이름을 입력해 주세요');return}
+  const o={id:editId||('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),n,c:$('f_c').value.trim()||'미분류',t:$('f_t').value.split(',').map(s=>s.trim()).filter(Boolean),by:$('f_by').value.trim(),y:$('f_y').value.trim(),d:$('f_d').value.trim()};
+  const old=DATA.find(y=>y.id===editId);if(old&&old.img)o.img=old.img;if(newImg)o.img=newImg;
+  $('fm').close();
+  commit(()=>{if(old)DATA[DATA.indexOf(old)]=o;else DATA.unshift(o)});
+};
+$('add').onclick=()=>form(null);
+$('bulk').onclick=()=>{$('b_t').value='';$('bk').showModal()};
+$('b_x').onclick=()=>$('bk').close();
+$('b_s').onclick=()=>{
+  const rows=$('b_t').value.split('\n').map(l=>l.split(',').map(s=>s.trim())).filter(r=>r[0]);
+  $('bk').close();
+  commit(()=>{rows.forEach((r,i)=>DATA.unshift({id:'b'+Date.now().toString(36)+i,n:r[0],c:r[1]||'미분류',t:(r[2]||'').split('/').map(s=>s.trim()).filter(Boolean),by:r[3]||'',y:r[4]||'',d:r.slice(5).join(', ')}))});
+};
+async function commit(fn){
+  if(!art){toast('편집 권한이 없어요');return}
+  const prev=JSON.stringify(DATA);fn();
+  const c=document.documentElement.cloneNode(true);
+  ['cats','tags','count','grid','more','dlg','toast'].forEach(id=>{const e=c.querySelector('#'+id);if(e){e.innerHTML='';e.removeAttribute('style')}});
+  c.querySelectorAll('dialog').forEach(d=>d.removeAttribute('open'));
+  c.querySelector('#adm').removeAttribute('style');
+  c.querySelector('#data').textContent=JSON.stringify(DATA).replace(/</g,'\\u003c');
+  const html='<!doctype html>\n'+c.outerHTML;
+  if(html.length>14e6){DATA=JSON.parse(prev);toast('저장 용량을 넘었어요');render();return}
+  try{await art.publish(html);toast('저장했어요')}catch(e){DATA=JSON.parse(prev);toast(e&&e.code==='conflict'?'다른 편집과 겹쳤어요. 새로 불러옵니다':'저장하지 못했어요');render()}
+}
+$('q').oninput=e=>{st.q=e.target.value.trim();st.shown=60;render()};
+render();
+</script>
+</body>
+</html>
