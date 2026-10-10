@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우타우 캐릭터 위키</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2F6;--card:#fff;--ink:#1B2233;--mute:#5D6980;--line:#D5DCE6;--acc:#167C79;--acc-ink:#fff;--chip:#E1E8F0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 "Noto Sans KR",system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:20px 16px 48px}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font-size:26px;margin:0 0 4px;font-weight:700}
+.sub{color:var(--mute);margin:0 0 6px;font-size:14px}
+.tw{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;background:#1D9BF0;transition:filter .15s}
+.tw:hover{filter:brightness(1.08)}
+.tw svg{width:17px;height:17px}
+.status{font-size:12px;color:var(--mute);margin-bottom:14px}
+input,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+textarea{min-height:90px}
+#q{margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.lbl{font-size:13px;color:var(--mute);width:56px;flex:none}
+button{font:inherit;color:inherit}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn{border:0;background:var(--acc);color:var(--acc-ink);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn.ghost{background:var(--chip);color:var(--ink)}
+.btn[disabled]{opacity:.6;cursor:default}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;gap:8px;flex-wrap:wrap}
+.count{font-size:13px;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.top{display:flex;gap:12px;align-items:center}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:20px;color:#fff;flex:none;object-fit:cover}
+.nm{font-weight:700;font-size:16px}
+.cat{font-size:12px;color:var(--mute)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tg{font-size:12px;background:var(--chip);border-radius:6px;padding:1px 8px}
+.empty{padding:32px 0;text-align:center;color:var(--mute);grid-column:1/-1}
+#more{text-align:center;margin-top:16px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(460px,calc(100% - 32px));padding:20px;max-height:90vh}
+dialog::backdrop{background:rgba(10,15,25,.55)}
+dl{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin:14px 0;font-size:14px}
+dt{color:var(--mute)}dd{margin:0}
+.big{width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:12px;background:var(--chip)}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.foot{font-size:11px;color:var(--mute);text-align:center;margin-top:28px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:10px;font-size:14px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<main>
+  <div class="hd">
+    <div>
+      <h1>우타우 캐릭터 위키</h1>
+      <p class="sub">누구나 이 사이트에서 캐릭터를 추가·수정할 수 있어요. 편집 시 IP가 기록됩니다.</p>
+    </div>
+    <a class="tw" href="https://x.com/iyeonimYH" target="_blank" rel="noopener" aria-label="트위터(X) 계정으로 이동">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-7.1l-5.6-7.3L4.3 22H1.2l8.1-9.3L0.9 2H8.2l5 6.7L18.9 2zm-1.2 18h1.9L7.4 4H5.4l12.3 16z"/></svg>
+    </a>
+  </div>
+  <p class="status" id="status">불러오는 중…</p>
+  <input type="search" id="q" placeholder="이름·제작자 검색 (Enter로 검색)">
+  <div class="row"><span class="lbl">카테고리</span><span id="cats" class="row" style="margin:0"></span></div>
+  <div class="row"><span class="lbl">태그</span><span id="tags" class="row" style="margin:0"></span></div>
+  <div class="bar"><span class="count" id="count"></span>
+    <span><button class="btn" id="add">캐릭터 추가</button></span></div>
+  <div class="grid" id="grid"></div>
+  <div id="more"></div>
+  <p class="foot">이 위키는 누구나 편집할 수 있으며, 악용 방지를 위해 편집 시 IP가 함께 기록됩니다.</p>
+  <dialog id="dlg"></dialog>
+  <dialog id="fm">
+    <b id="ft">캐릭터 추가</b>
+    <label for="f_n">이름</label><input id="f_n">
+    <label for="f_c">카테고리</label><input id="f_c" list="cl"><datalist id="cl"></datalist>
+    <label for="f_t">태그 (쉼표로 구분)</label><input id="f_t">
+    <label for="f_by">제작자</label><input id="f_by">
+    <label for="f_y">공개 연도</label><input id="f_y" inputmode="numeric">
+    <label for="f_d">소개</label><textarea id="f_d"></textarea>
+    <label for="f_i">이미지</label><input id="f_i" type="file" accept="image/*">
+    <div class="acts"><button class="btn ghost" id="f_x">취소</button><button class="btn" id="f_s">저장</button></div>
+  </dialog>
+  <div id="toast" role="status"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://yqdbwjtfrayfhxycelst.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxZGJ3anRmcmF5Zmh4eWNlbHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNTc3MjYsImV4cCI6MjEwNjkzMzcyNn0.kEP32LL6dvGx4BR_N3Tx70pWgHvvUVvvbRFSOgmv44k';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const TABLE='characters';
+const LOG='edit_log';
+const BUCKET='character-images';
+const PAGE_SIZE=48;
+
+const $=id=>document.getElementById(id);
+let DATA=[];
+let OFFSET=0;
+let TOTAL=0;
+let MY_IP=null;
+const st={cat:'전체',tags:new Set(),q:''};
+let editId=null,newFile=null;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hue=s=>[...s].reduce((a,c)=>a+c.charCodeAt(0),0)*37%360;
+const isImg=s=>typeof s==='string'&&(s.startsWith('data:image/')||s.startsWith('http'));
+const av=x=>isImg(x.image)?`<img class="av" alt="" src="${x.image}">`:`<span class="av" style="background:hsl(${hue(x.name||'?')} 45% 42%)">${esc((x.name||'?')[0])}</span>`;
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2600)}
+
+async function myIp(){
+  if(MY_IP)return MY_IP;
+  try{const r=await fetch('https://api.ipify.org?format=json');const j=await r.json();MY_IP=j.ip;}catch(e){MY_IP='unknown';}
+  return MY_IP;
+}
+async function writeLog(action,row){
+  try{const ip=await myIp();await sb.from(LOG).insert({character_id:row.id||null,character_name:row.name,action,ip});}catch(e){}
+}
+
+// 카테고리/태그 모음용 (가벼운 컬럼만, 최근 2000개 샘플 기준)
+let facetCats=[],facetTags=[];
+async function loadFacets(){
+  const {data}=await sb.from(TABLE).select('category,tags').order('created_at',{ascending:false}).limit(2000);
+  const cset=new Set(),freq={};
+  (data||[]).forEach(x=>{if(x.category)cset.add(x.category);(x.tags||[]).forEach(t=>freq[t]=(freq[t]||0)+1)});
+  facetCats=[...cset];
+  facetTags=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]).slice(0,30);
+}
+
+function buildQuery(){
+  let q=sb.from(TABLE).select('*',{count:'exact'});
+  if(st.cat!=='전체')q=q.eq('category',st.cat);
+  if(st.tags.size)q=q.contains('tags',[...st.tags]);
+  if(st.q)q=q.or(`name.ilike.%${st.q}%,creator.ilike.%${st.q}%`);
+  return q.order('created_at',{ascending:false});
+}
+
+async function load(reset){
+  if(reset){OFFSET=0;DATA=[]}
+  const {data,error,count}=await buildQuery().range(OFFSET,OFFSET+PAGE_SIZE-1);
+  if(error){$('status').textContent='불러오지 못했어요: '+error.message;return}
+  DATA=DATA.concat(data||[]);
+  TOTAL=count||0;
+  OFFSET+=PAGE_SIZE;
+  $('status').textContent='모두에게 공개된 위키예요. 추가·수정하면 바로 반영돼요.';
+  render();
+}
+
+function chips(el,list,isOn,fn){el.innerHTML='';list.forEach(v=>{const b=document.createElement('button');b.className='chip';b.textContent=v;b.setAttribute('aria-pressed',isOn(v));b.onclick=()=>{fn(v);load(true)};el.appendChild(b)})}
+function render(){
+  chips($('cats'),['전체',...facetCats],v=>st.cat===v,v=>st.cat=v);
+  chips($('tags'),facetTags,v=>st.tags.has(v),v=>st.tags.has(v)?st.tags.delete(v):st.tags.add(v));
+  $('cl').innerHTML=facetCats.map(c=>`<option value="${esc(c)}">`).join('');
+  $('count').textContent=`캐릭터 ${TOTAL}명 중 ${DATA.length}명 표시`;
+  const g=$('grid');g.innerHTML='';
+  if(!DATA.length){g.innerHTML='<div class="empty">조건에 맞는 캐릭터가 없어요. 첫 캐릭터를 추가해 보세요.</div>'}
+  DATA.forEach(x=>{const b=document.createElement('button');b.className='card';
+    b.innerHTML=`<span class="top">${av(x)}<span><span class="nm">${esc(x.name)}</span><br><span class="cat">${esc(x.category)}</span></span></span><span class="tags">${(x.tags||[]).map(t=>`<span class="tg">${esc(t)}</span>`).join('')}</span>`;
+    b.onclick=()=>detail(x);g.appendChild(b)});
+  $('more').innerHTML='';
+  if(DATA.length<TOTAL){const b=document.createElement('button');b.className='btn ghost';b.textContent='더 보기';b.onclick=()=>load(false);$('more').appendChild(b)}
+}
+function detail(x){
+  const d=$('dlg');
+  d.innerHTML=`<div class="top">${av(x)}<div><div class="nm">${esc(x.name)}</div><div class="cat">${esc(x.category)}</div></div></div>${isImg(x.image)?`<img class="big" alt="${esc(x.name)}" src="${x.image}">`:''}
+  <dl><dt>제작자</dt><dd>${esc(x.creator)||'-'}</dd><dt>공개</dt><dd>${esc(x.year)||'-'}</dd><dt>태그</dt><dd>${esc((x.tags||[]).join(', '))||'-'}</dd><dt>소개</dt><dd>${esc(x.description)||'-'}</dd></dl>
+  <div class="acts"><button class="btn ghost" id="d_del">삭제</button><button class="btn ghost" id="d_ed">수정</button><button class="btn" id="d_x">닫기</button></div>`;
+  $('d_x').onclick=()=>d.close();
+  $('d_ed').onclick=()=>{d.close();form(x)};
+  $('d_del').onclick=async function(){
+    if(!this.dataset.s){this.dataset.s=1;this.textContent='정말 삭제';return}
+    d.close();
+    const {error}=await sb.from(TABLE).delete().eq('id',x.id);
+    if(error){toast('삭제하지 못했어요');return}
+    writeLog('delete',x);
+    toast('삭제했어요');loadFacets();load(true);
+  };
+  d.showModal();
+}
+function form(x){
+  editId=x?x.id:null;newFile=null;$('ft').textContent=x?'캐릭터 수정':'캐릭터 추가';
+  $('f_n').value=x?x.name:'';$('f_c').value=x?x.category||'':'';$('f_t').value=x?(x.tags||[]).join(', '):'';$('f_by').value=x?x.creator||'':'';$('f_y').value=x?x.year||'':'';$('f_d').value=x?x.description||'':'';$('f_i').value='';
+  $('fm').showModal();
+}
+$('f_i').onchange=e=>{newFile=e.target.files[0]||null};
+
+function resize(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>{const im=new Image();im.onload=()=>{
+      const s=Math.min(1,480/Math.max(im.width,im.height));
+      const c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+      const k=c.getContext('2d');k.fillStyle='#fff';k.fillRect(0,0,c.width,c.height);k.drawImage(im,0,0,c.width,c.height);
+      c.toBlob(b=>res(b),'image/jpeg',.8);
+    };im.onerror=rej;im.src=r.result};
+    r.onerror=rej;r.readAsDataURL(file);
+  });
+}
+async function uploadImage(file){
+  const blob=await resize(file);
+  const path=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,blob,{contentType:'image/jpeg'});
+  if(error)throw error;
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+$('f_x').onclick=()=>$('fm').close();
+$('f_s').onclick=async()=>{
+  const n=$('f_n').value.trim();if(!n){toast('이름을 입력해 주세요');return}
+  $('f_s').disabled=true;$('f_s').textContent='저장 중…';
+  try{
+    const ip=await myIp();
+    const o={name:n,category:$('f_c').value.trim()||'미분류',tags:$('f_t').value.split(',').map(s=>s.trim()).filter(Boolean),creator:$('f_by').value.trim(),year:$('f_y').value.trim(),description:$('f_d').value.trim(),last_edited_ip:ip};
+    const old=DATA.find(y=>y.id===editId);
+    if(old&&old.image&&!newFile)o.image=old.image;
+    if(newFile)o.image=await uploadImage(newFile);
+    let error,row;
+    if(editId){({error}=await sb.from(TABLE).update(o).eq('id',editId));row={...o,id:editId}}
+    else{const res=await sb.from(TABLE).insert(o).select().single();error=res.error;row=res.data||o}
+    if(error)throw error;
+    writeLog(editId?'update':'insert',row);
+    $('fm').close();toast('저장했어요');loadFacets();load(true);
+  }catch(e){toast('저장하지 못했어요: '+(e.message||e))}
+  $('f_s').disabled=false;$('f_s').textContent='저장';
+};
+$('add').onclick=()=>form(null);
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter'){st.q=e.target.value.trim();load(true)}});
+loadFacets().then(()=>load(true));
+</script>
+</body>
+</html>
